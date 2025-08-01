@@ -1,4 +1,4 @@
-@allure.label.epic:Authentification
+@allure.label.epic:Register
 Feature: Register
 @allure.label.story:FailedScenario
 @register-KO1
@@ -12,7 +12,7 @@ Scenario Outline: Register with invalid credentials
 
     Examples:
       | username        | password  |         alert                  |
-      | Admin           | Admin  | UserName Admin Already Exist!     |
+      | Admin           | Admin     | UserName Admin Already Exist!  |
 
   @allure.label.story:FailedScenario
     @register-KO2
@@ -49,6 +49,7 @@ Scenario Outline: Register with invalid credentials
     And I enter my confirm password "<confirm_password>"
     And I click on the Register button
     Then I should receive a success alert "<alert>"
+    Then Click on the OK button
     Then I will be redirect to the login page
     Examples:
       | username    | password    | confirm_password | alert                    |
