@@ -1,17 +1,14 @@
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-from resources.DashboardLocators import DashboardLocators
-#from resources.RegisterPageLocators import RegisterPageLocators
+from resources.register_locators import RegisterLocators
 import yaml
 import logging
 import os
-from selenium.common.exceptions import NoSuchElementException
-import time
-
 
 log_path = os.path.join('logs', 'app.log')
 logging.basicConfig(filename=log_path, level=logging.INFO, filemode='a', format='%(asctime)s - %(levelname)s : %(message)s')
+
 # Add a separate handler for ERROR level messages
 error_handler = logging.FileHandler(log_path)
 error_handler.setLevel(logging.ERROR)
@@ -20,115 +17,78 @@ error_handler.setFormatter(error_formatter)
 
 # Attach the error handler to the root logger
 logging.getLogger().addHandler(error_handler)
-
 class RegisterPage:
     def __init__(self, driver):
         self.driver = driver
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger()
 
-    def visit(self):
-        with open('config/driver.yml') as file:
-            config = yaml.safe_load(file)
-            register_system_url = config.get("REGISTER_SYSTEM_URL", "")
-        self.driver.get(register_system_url)
-        self.logger.info("Register page Visited")
+    def is_displayed(self):
+        return "register" in self.driver.current_url.lower()
 
     def enter_username(self, username):
         try:
-            username_field = self.driver.find_element(*LoginPageLocators.USERNAME_INPUT)
-            username_field.clear()
-
-            if username is not None and username != "":
-                username_field.send_keys(username)
-                self.logger.info("Username Entered: %s" % username)
-            '''else:
-                self.logger.info("Empty Username Entered")'''
-
-            time.sleep(5)  # Add a delay after entering the username
-            return True
+            field = self.driver.find_element(*RegisterLocators.USERNAME)
+            field.clear()
+            field.send_keys(username)
+            self.logger.info(f"Entered username: {username}")
         except Exception as e:
-            self.logger.error("Failed to enter username: %s" % str(e))
-            return False
-
+            self.logger.error(f"Failed to enter username: {e}")
 
     def enter_password(self, password):
         try:
-            password_field = self.driver.find_element(*LoginPageLocators.PASSWORD_INPUT)
-            password_field.clear()
-
-            if password is not None and password != "":
-                password_field.send_keys(password)
-                self.logger.info("Password Entered")
-            '''else:
-                self.logger.info("Empty Password Entered")'''
-
-            time.sleep(1)  # Add a delay after entering the password
-            return True
+            field = self.driver.find_element(*RegisterLocators.PASSWORD)
+            field.clear()
+            field.send_keys(password)
+            self.logger.info(f"Entered password")
         except Exception as e:
-            self.logger.error("Failed to enter password: %s" % str(e))
-            return False
+            self.logger.error(f"Failed to enter password: {e}")
 
-    def enter_empty_username(self):
+    def enter_confirm_password(self, confirm_password):
         try:
-            username_field = self.driver.find_element(*LoginPageLocators.USERNAME_INPUT)
-            username_field.clear()
-
-            username_field.send_keys("")
-            self.logger.info("Empty Username Entered")
-
-            time.sleep(5)  # Add a delay after entering the username
-            return True
+            field = self.driver.find_element(*RegisterLocators.CONFIRM_PASSWORD)
+            field.clear()
+            field.send_keys(confirm_password)
+            self.logger.info(f"Entered confirm password")
         except Exception as e:
-            self.logger.error("Failed to enter empty username: %s" % str(e))
-            return False
+            self.logger.error(f"Failed to enter confirm password: {e}")
 
-    def click_login_button(self):
-        self.driver.find_element(*LoginPageLocators.LOGIN_BUTTON).click()
-        self.logger.info("Login Button Clicked..")
+    def click_register_button(self):
+        try:
+            self.driver.find_element(*RegisterLocators.REGISTER_BUTTON).click()
+            self.logger.info("Clicked Register button")
+        except Exception as e:
+            self.logger.error(f"Failed to click Register button: {e}")
+
+    def get_success_alert(self):
+        try:
+            alert_text = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(RegisterLocators.SUCCESS_ALERT)
+            ).text
+            self.logger.info(f"Success alert received: {alert_text}")
+            return alert_text
+        except Exception as e:
+            self.logger.error(f"Failed to get success alert: {e}")
+            return ""
 
     def click_ok_button(self):
-        self.driver.find_element(*LoginPageLocators.OK_BUTTON).click()
-        self.logger.info("OK Button Clicked..")
-
-    def is_dashboard_displayed(self):
         try:
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(DashboardLocators.DASHBOARD_TITLE))
-            dashboard_title = self.driver.find_element(*DashboardLocators.DASHBOARD_TITLE)
-            self.logger.info("Dashboard Displayed success..%s" % dashboard_title.text)
-        except Exception:
-            self.logger.error("Dashboard Displayed error..")
-            return False
-
-    def assert_dashboard_displayed(self):
-        if self.is_dashboard_displayed():
-            return True
-        else:
-            return False
-
-    def get_error_message(self):
-        try:
-            error_message_element = self.driver.find_element(*LoginPageLocators.ALERTFAILURE)
-            error_message = error_message_element.text
-            self.logger.info("Error message found: %s" % error_message)
-            time.sleep(1)  # Add a delay of 1 second after getting the error message
-            return error_message
-        except NoSuchElementException:
-            self.logger.error("Failed to get error message")
-            return None
+            ok_button = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable(RegisterLocators.OK_BUTTON)
+            )
+            ok_button.click()
+            self.logger.info("Clicked OK button in alert")
         except Exception as e:
-            self.logger.error("Failed to get error message: %s" % str(e))
-            return None
+            self.logger.error(f"Failed to click OK button: {e}")
 
-    def required_msg(self, required_msg):
+
+    def get_error_alert(self):
         try:
-            error_message_req = self.driver.find_element(*LoginPageLocators.REQUIRED)
-            error_message = error_message_req.text
-            self.logger.info("Error message found: %s" % error_message)
-            time.sleep(1)  # Add a delay of 1 second after getting the error message
-            assert error_message == required_msg
-        except AssertionError as e:
-            self.logger.error(f"Error message assertion failed: {str(e)}")
-        except NoSuchElementException:
-            self.logger.error("Error message element not found")
+            alert_text = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(RegisterLocators.ERROR_ALERT)
+            ).text
+            self.logger.info(f"Error alert received: {alert_text}")
+            return alert_text
         except Exception as e:
-            self.logger.error(f"Failed to get error message: {str(e)}")
+            self.logger.error(f"Failed to get error alert: {e}")
+            return ""
+
