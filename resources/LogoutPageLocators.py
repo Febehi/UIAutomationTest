@@ -1,7 +1,11 @@
 from selenium.webdriver.common.by import By
 
-class LogoutPageLocators:
+class RegisterLocators:
+    USERNAME = (By.NAME, "username")
+    PASSWORD = (By.NAME, "password")
+    CONFIRM_PASSWORD = (By.NAME, "confirm_password")
+    SUCCESS_ALERT = (By.CLASS_NAME, "swal-modal")
+    OK_BUTTON = (By.XPATH, "//button[contains(@class, 'swal-button--confirm') and text()='OK']")
+    ERROR_ALERT= (By.CLASS_NAME, "swal-modal")
 
-    IMAGE_AVATAR=(By.XPATH,"//*[@id='app']/div[1]/div[1]/header/div[1]/div[2]/ul/li/span/img")
-    LINK_LOGOUT=(By.XPATH,"//*[@id='app']/div[1]/div[1]/header/div[1]/div[2]/ul/li/ul/li[4]/a")
-    
+
