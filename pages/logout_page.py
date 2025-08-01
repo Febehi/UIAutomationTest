@@ -1,17 +1,28 @@
-import time
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from Common.CommonMethods import CommonMethods
 from resources.LogoutPageLocators import LogoutPageLocators
+import yaml
 import logging
-from selenium.common.exceptions import NoSuchElementException
+import os
+
+log_path = os.path.join('logs', 'app.log')
+logging.basicConfig(filename=log_path, level=logging.INFO, filemode='a', format='%(asctime)s - %(levelname)s : %(message)s')
+
+# Add a separate handler for ERROR level messages
+error_handler = logging.FileHandler(log_path)
+error_handler.setLevel(logging.ERROR)
+error_formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
+error_handler.setFormatter(error_formatter)
+
+# Attach the error handler to the root logger
+logging.getLogger().addHandler(error_handler)
+class LogoutPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.logger = logging.getLogger(__name__)
 
 
-class LogoutPage(CommonMethods):
-    def logout(self):
-        Image_avatar = self.wait_for_element(LogoutPageLocators.IMAGE_AVATAR)
-        Image_avatar.click()
-        Link_logout = self.wait_for_element(LogoutPageLocators.LINK_LOGOUT)
-        time.sleep(5) 
-        Link_logout.click()
-        logging.info("click on logout Link")
+    def click_login_button(self):
+        self.driver.find_element(*LogoutPageLocators.LOGOUT_BUTTON).click()
+        self.logger.info("LOGOUT Button Clicked..")
