@@ -1,8 +1,8 @@
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from resources.DashboardLocators import DashboardLocators
 from resources.LoginPageLocators import LoginPageLocators
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import yaml
 import logging
 import os
@@ -32,7 +32,6 @@ class LoginPage:
          test_system_url = config.get("LOGIN_SYSTEM_URL", "")
         self.driver.get(test_system_url)
         self.logger.info("Login page Visited")
-        #time.sleep(5)  # Add a delay of 1 second after visiting the page
 
     def enter_username(self, username):
         try:
@@ -42,10 +41,8 @@ class LoginPage:
             if username is not None and username != "":
                 username_field.send_keys(username)
                 self.logger.info("Username Entered: %s" % username)
-            '''else:
-                self.logger.info("Empty Username Entered")'''
             
-            time.sleep(5)  # Add a delay after entering the username
+            time.sleep(5)  
             return True
         except Exception as e:
             self.logger.error("Failed to enter username: %s" % str(e))
@@ -60,10 +57,7 @@ class LoginPage:
             if password is not None and password != "":
                 password_field.send_keys(password)
                 self.logger.info("Password Entered")
-            '''else:
-                self.logger.info("Empty Password Entered")'''
-            
-            time.sleep(1)  # Add a delay after entering the password
+            time.sleep(1)  
             return True
         except Exception as e:
             self.logger.error("Failed to enter password: %s" % str(e))
@@ -76,9 +70,7 @@ class LoginPage:
             
             username_field.send_keys("")
             self.logger.info("Empty Username Entered")
-            
-            time.sleep(5)  # Add a delay after entering the username
-            return True
+            time.sleep(5)
         except Exception as e:
             self.logger.error("Failed to enter empty username: %s" % str(e))
             return False
@@ -111,7 +103,7 @@ class LoginPage:
             error_message_element = self.driver.find_element(*LoginPageLocators.ALERTFAILURE)
             error_message = error_message_element.text
             self.logger.info("Error message found: %s" % error_message)
-            time.sleep(1)  # Add a delay of 1 second after getting the error message
+            time.sleep(1) 
             return error_message
         except NoSuchElementException:
                 self.logger.error("Failed to get error message")
@@ -125,7 +117,7 @@ class LoginPage:
             error_message_req = self.driver.find_element(*LoginPageLocators.REQUIRED)
             error_message = error_message_req.text
             self.logger.info("Error message found: %s" % error_message)
-            time.sleep(1)  # Add a delay of 1 second after getting the error message
+            time.sleep(1)  
             assert error_message == required_msg
         except AssertionError as e:
             self.logger.error(f"Error message assertion failed: {str(e)}")
