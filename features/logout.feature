@@ -1,5 +1,6 @@
 @allure.label.epic:LogOut
 Feature: LogOut
+
   @logout-OK
   Scenario Outline: Logout
     Given I am on the Dashboard interface
